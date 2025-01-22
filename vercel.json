@@ -1,16 +1,8 @@
 {
-  "routes": [
+  "rewrites":[
     {
-      "src": "/",
-      "dest": "/"
-    },
-    {
-      "src": "/login",
-      "dest": "/"
-    },
-    {
-      "src": "/upload",
-      "dest": "/"
+      "source": "/(.*)", 
+      "destination": "/"
     }
   ]
 }
