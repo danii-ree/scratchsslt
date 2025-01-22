@@ -1,95 +1,139 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import Head from 'next/head';
+import app from './firebase/config';
+import styles from './page.module.css';
+import { useState, useEffect } from 'react';
+import { getAuth } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [isOpen, setIsOpen] = useState(false);
+  const [xp, setXp] = useState(1200);
+  const [level, setLevel] = useState(3);
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
+  const xpToNextLevel = 1500;
+  const [profilePic, setProfilePic] = useState(null)
+  const [displayName, setDisplayName] = useState("")
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+  const auth = getAuth(app)
+  const router = useRouter()
+
+  useEffect(() => {
+    const userInfo = auth.onAuthStateChanged((user) => {
+      if (user) {
+        setProfilePic(user.photoURL)
+        setDisplayName(user.displayName)
+      } else {
+        setDisplayName(null);
+        router.push('/login')
+      }
+    });
+
+    return () => userInfo();
+  }, [auth, router]);
+
+  const toggleMenu = () => setIsOpen(!isOpen);
+  const openModal = () => setIsModalOpen(true); // Open modal
+  const closeModal = () => setIsModalOpen(false); // Close modal
+
+  const progress = (xp / xpToNextLevel) * 100;
+  const addXp = (amount) => {
+    setXp(prevXp => {
+      const newXp = prevXp + amount;
+      if (newXp >= xpToNextLevel) {
+        setLevel(prevLevel => prevLevel + 1);
+        return newXp - xpToNextLevel; // XP overflow to next level
+      }
+      return newXp;
+    });
+  };
+
+  const practiceProblems = [
+    { title: 'Problem 1', description: 'Description for problem 1' },
+    // { title: 'Problem 2', description: 'Description for problem 2' },
+    // { title: 'Problem 3', description: 'Description for problem 3' },
+    // { title: 'Problem 4', description: 'Description for problem 4' },
+    // { title: 'Problem 5', description: 'Description for problem 5' },
+    // { title: 'Problem 6', description: 'Description for problem 6' },
+  ];
+
+  return (
+    <div className={styles.container}>
+      <Head>
+        <title>ScratchSSLT</title>
+        <meta name="description" content="A gamified OSSLT website" />
+      </Head>
+
+      <header className={styles.header}>
+        <div className={styles.logo}>ScratchSSLT</div>
+        <div className={styles.xpTracker}>
+          <span className={styles.level}>Level {level} | </span>
+          <span className={styles.xpText}>{xp} / {xpToNextLevel} XP</span>
+        </div>
+        <div className={styles.dropdown}>
+          <a className={styles.host} onClick={toggleMenu}>Host</a>
+          {isOpen && (
+            <div className={styles.menu}>
+              
+              <a onClick={openModal} className={styles.menuItem}>Host Problem set</a>
+              <a onClick={openModal} className={styles.menuItem}>Host OSSLT Competition</a>
+            </div>
+          )}
+        </div>
+        <div className={styles.profilePic}>
+          <img src={profilePic} />
+        </div>
+      </header>
+
+      <main className={styles.main}>
+        <h1 className={styles.title}>Welcome Back, {displayName}</h1>
+
+        <div className={styles.grid}>
+          <div className={styles.card_container}>
+            <h2>Challenge Yourself</h2>
+            <p>Compete with others in real-time to test your OSSLT skills.</p>
+            <a className={styles.card_button1}>Start Competition</a>
+          </div>
+
+          <div className={styles.card_container}>
+            <h2>Develop Your Skills</h2>
+            <p>Browse and select problem sets to practice and improve your skills.</p>
+            <a className={styles.card_button2}>Find Problem Sets</a>
+          </div>
+        </div>
+
+        <div className={styles.scrollContainer}>
+          <h2 className={styles.subtitle}>Top Practice Problems</h2>
+          <div className={styles.practiceProblems}>
+            {practiceProblems.map((problem, index) => (
+              <div className={styles.problemCard} key={index}>
+                <h3>{problem.title}</h3>
+                <p>{problem.description}</p>
+                <a className={styles.practiceButton}>Start Practice</a>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <h2 className={styles.subtitle}>Leaderboard</h2>
+        <div className={styles.scoreboard}>
+          <div className={styles.scoreRow}>
+            <span className={styles.rank}>1</span>
+            <span className={styles.name}>Brandon</span>
+            <span className={styles.score}>150</span>
+          </div>
+          <div className={styles.scoreRow}>
+            <span className={styles.rank}>2</span>
+            <span className={styles.name}>Alice</span>
+            <span className={styles.score}>120</span>
+          </div>
+          <div className={styles.scoreRow}>
+            <span className={styles.rank}>3</span>
+            <span className={styles.name}>Bob</span>
+            <span className={styles.score}>110</span>
+          </div>
         </div>
       </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }

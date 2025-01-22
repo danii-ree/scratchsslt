@@ -9,8 +9,17 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/material": "^6.1.6",
+    "@pdftron/webviewer": "^11.0.0",
+    "next": "15.0.1",
     "react": "19.0.0-rc-69d4b800-20241021",
+    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "19.0.0-rc-69d4b800-20241021",
-    "next": "15.0.1"
+    "react-firebase-hooks": "^5.1.1"
+  },
+  "devDependencies": {
+    "firebase": "^11.0.1"
   }
 }
